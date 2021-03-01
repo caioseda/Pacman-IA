@@ -99,6 +99,26 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+def getActionSequence(node):
+    actions = []
+    while node['PATH-COST'] > 0:
+        actions.insert(0,node['ACTION'])
+        node = node['PARENT']
+    return actions
+
+
+def getStartNode(problem):
+    node = {'STATE':problem.getStartState(),'PATH-COST':0}
+    return node
+
+
+def getChildNode(sucessor,parent_node):
+    child_node = {'STATE': sucessor[0],
+                  'ACTION': sucessor[1],
+                  'PARENT': parent_node,
+                  'PATH-COST': parent_node['PATH-COST'] + sucessor[2]}
+    return child_node
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -109,16 +129,63 @@ def depthFirstSearch(problem):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
 
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    print "Start's successors:", problem.expand(problem.getStartState())
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    node = getStartNode(problem)
+
+    frontier = util.Stack()
+    frontier.push(node)
+    explored = set()
+
+    while not frontier.isEmpty():
+        node = frontier.pop()
+
+        if problem.isGoalState(node['STATE']): 
+          return getActionSequence(node)
+
+        if node['STATE'] in explored:
+            continue
+
+        explored.add(node['STATE'])
+        
+        if problem.isGoalState(node['STATE']):
+            return getActionSequence(node)
+        for sucessor in problem.expand(node['STATE']):
+            child_node = getChildNode(sucessor,node)
+            frontier.push(child_node)
+    return []
+
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    node = getStartNode(problem)
+
+    frontier = util.Queue()
+    frontier.push(node)
+    explored = set()
+
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        
+        if node['STATE'] in explored:
+            continue
+
+        explored.add(node['STATE'])
+
+        if problem.isGoalState(node['STATE']):
+            return getActionSequence(node)        
+        
+        for successor in problem.expand(node['STATE']):
+            child_node = getChildNode(successor, node)
+            frontier.push(child_node)
+    
+    return []
 
 def nullHeuristic(state, problem=None):
     """
@@ -129,11 +196,35 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    node = getStartNode(problem)
+    fn_total_cost_for_node = lambda a_node: a_node['PATH-COST'] + heuristic(a_node['STATE'], problem=problem)
+    frontier = util.PriorityQueueWithFunction(fn_total_cost_for_node)
+    frontier.push(node)
+    explored = set()
+
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        
+        if node['STATE'] in explored:
+            continue
+        
+        explored.add(node['STATE'])
+
+        if problem.isGoalState(node['STATE']): 
+          return getActionSequence(node)
+
+        successors = problem.expand(node['STATE'])
+
+        for sucessor in successors:
+            child_node = getChildNode(sucessor, node)
+            frontier.push(child_node)
+
+    return []
 
 
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
+# ucs = uniformCostSearch
