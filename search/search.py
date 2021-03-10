@@ -153,6 +153,7 @@ def depthFirstSearch(problem):
         
         if problem.isGoalState(node['STATE']):
             return getActionSequence(node)
+        
         for sucessor in problem.expand(node['STATE']):
             child_node = getChildNode(sucessor,node)
             frontier.push(child_node)

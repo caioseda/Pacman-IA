@@ -228,6 +228,7 @@ class PositionSearchProblem(search.SearchProblem):
         x, y = state
         dx, dy = Actions.directionToVector(action)
         nextx, nexty = int(x + dx), int(y + dy)
+        
         return (nextx, nexty)
 
     def getCostOfActionSequence(self, actions):
@@ -307,22 +308,23 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
-        "*** YOUR CODE HERE ***"
+        
+        self.startState = (self.startingPosition, (0, 0, 0, 0))
 
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.startState
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # hasCorners = len(state[1]) > 0 # or self.corners
+        # return ~hasCorners
+        return all(state[1]) # testa se já passou por todos os corners
 
     def expand(self, state):
         """
@@ -339,10 +341,24 @@ class CornersProblem(search.SearchProblem):
         for action in self.getActions(state):
             # Add a child state to the child list if the action is legal
             # You should call getActions, getActionCost, and getNextState.
-            "*** YOUR CODE HERE ***"
+            nextState = self.getNextState(state, action)
+            cost = self.getActionCost(state, action, nextState)
+            children.append( (nextState, action, cost) )
 
         self._expanded += 1 # DO NOT CHANGE
+
         return children
+
+    def getCornerState(self, state, next_position):
+        oldState = list(state[1])
+        cornerState = []
+        for index, corner in enumerate(self.corners):
+            if next_position == corner:
+                cornerState.append(1)
+            else:
+                cornerState.append(oldState[index])
+
+        return tuple(cornerState)
 
     def getActions(self, state):
         possible_directions = [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]
@@ -366,10 +382,11 @@ class CornersProblem(search.SearchProblem):
         x, y = state[0]
         dx, dy = Actions.directionToVector(action)
         nextx, nexty = int(x + dx), int(y + dy)
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-        # you will need to replace the None part of the following tuple.
-        return ((nextx, nexty), None)
+
+        next_position = (nextx, nexty)
+        corner_state = self.getCornerState(state, next_position)
+
+        return (next_position, corner_state)
 
     def getCostOfActionSequence(self, actions):
         """
@@ -384,6 +401,20 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
+
+def distanceArgmin(pos, pontos):
+    import math
+    dist = math.inf
+    index = None
+    
+    for i, ponto in enumerate(pontos):  
+        d = util.manhattanDistance(pos, ponto)
+
+        if d < dist:
+            index = i
+            dist = d
+    
+    return dist, index
 
 def cornersHeuristic(state, problem):
     """
@@ -400,9 +431,25 @@ def cornersHeuristic(state, problem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    
+    # Pega os corners restantes a partir do estado do corner
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    pontos = []
+    for index, corner_state in enumerate(state[1]):
+        if corner_state == 0:
+            ponto = problem.corners[index] 
+            pontos.append(ponto)
+
+    pos = state[0]
+    pathLength = 0
+
+    while pontos:
+        dist, index = distanceArgmin(pos, pontos)
+        pathLength += dist
+        pos = pontos[index]
+        pontos.pop(index)
+
+    return pathLength
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -548,8 +595,7 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.astar(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -584,8 +630,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         """
         x,y = state
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 def mazeDistance(point1, point2, gameState):
     """
