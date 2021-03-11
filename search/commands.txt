@@ -18,3 +18,10 @@ python pacman.py -l mediumCorners -p AStarCornersAgent -z 0.5
 python pacman.py -l testSearch -p AStarFoodSearchAgent
 python pacman.py -l trickySearch -p AStarFoodSearchAgent
 python pacman.py -l bigSearch -p ClosestDotSearchAgent -z .5 
+
+
+
+Trabalho:
+
+python pacman.py -l ClosestSearchEx -p ClosestDotSearchAgent
+python pacman.py -l ClosestSearchIdeal -p ClosestDotSearchAgent

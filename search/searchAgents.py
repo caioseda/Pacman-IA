@@ -349,17 +349,6 @@ class CornersProblem(search.SearchProblem):
 
         return children
 
-    def getCornerState(self, state, next_position):
-        oldState = list(state[1])
-        cornerState = []
-        for index, corner in enumerate(self.corners):
-            if next_position == corner:
-                cornerState.append(1)
-            else:
-                cornerState.append(oldState[index])
-
-        return tuple(cornerState)
-
     def getActions(self, state):
         possible_directions = [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]
         valid_actions_from_state = []
@@ -375,6 +364,17 @@ class CornersProblem(search.SearchProblem):
         assert next_state == self.getNextState(state, action), (
             "Invalid next state passed to getActionCost().")
         return 1
+
+    def getCornerState(self, state, next_position):
+        oldState = list(state[1])
+        cornerState = []
+        for index, corner in enumerate(self.corners):
+            if next_position == corner:
+                cornerState.append(1)
+            else:
+                cornerState.append(oldState[index])
+
+        return tuple(cornerState)
 
     def getNextState(self, state, action):
         assert action in self.getActions(state), (
@@ -417,18 +417,7 @@ def distanceArgmin(pos, pontos):
     return dist, index
 
 def cornersHeuristic(state, problem):
-    """
-    A heuristic for the CornersProblem that you defined.
-
-      state:   The current search state
-               (a data structure you chose in your search problem)
-
-      problem: The CornersProblem instance for this layout.
-
-    This function should always return a number that is a lower bound on the
-    shortest path from the state to a goal of the problem; i.e.  it should be
-    admissible (as well as consistent).
-    """
+ 
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
     
