@@ -1,2 +1,5 @@
 __pycache__
 launch.json
+*.mp4
+*.zip
+link_video.txt
