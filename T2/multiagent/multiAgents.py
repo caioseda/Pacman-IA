@@ -77,6 +77,14 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
+        # print('Successor game state:\n', successorGameState)
+        # print('Pacman current position: ', newPos)
+        # print('oldFood:\n', oldFood)
+        # print('newFood:\n', newFood)
+        # print('ghostPositions: ', ghostPositions)
+        # print('successorGameState.score: ', successorGameState.getScore())
+        # print('newScaredTimes: ', newScaredTimes)
+
         # computa distância para o fantasma mais próximo.
         minDistanceGhost = float("+inf")
         for ghostPos in ghostPositions:
@@ -96,6 +104,8 @@ class ReflexAgent(Agent):
 
         # incentiva acao que conduz o agente para mais longe do fantasma mais próximo
         score += 2 * minDistanceGhost # maior distância do fantasma, melhor
+
+        
         minDistanceFood = float("+inf")
         for foodPos in newFoodList:
             minDistanceFood = min(minDistanceFood, util.manhattanDistance(foodPos, newPos))
@@ -363,11 +373,7 @@ def betterEvaluationFunction(currentGameState):
     score -= 2 * minDistanceFood
 
     # incentiva o agente a comer pílulas 
-    score -= 4 * len(newFoodList)
-
-    # incentiva o agente a se mover para príximo das cápsulas
-    
-
+    score -= 4 * len(newFoodList)    
     
     ghostPositions = currentGameState.getGhostPositions()
     # calcula distância entre o agente e o fantasma mais próximo
@@ -376,24 +382,13 @@ def betterEvaluationFunction(currentGameState):
         minDistanceGhost = min(minDistanceGhost, util.manhattanDistance(newPos, ghostPos))
 
     capsulelocations = currentGameState.getCapsules()
-    # calcula distância entre o agente e a capsula mais próxima
-    minDistanceCapsule = float("+inf")
-    for capPos in capsulelocations:
-        minDistanceCapsule = min(minDistanceCapsule, util.manhattanDistance(newPos, capPos))
-    
     score -= 4 * len(capsulelocations)
     
-    isScared = [True for time in scaredTimes if time != 0]
-    
+    isScared = [True for time in scaredTimes if time is not 0]
     if any(isScared):
         score -= 2 * minDistanceGhost
     else: 
         score -= 4 * minDistanceGhost
-    
-        
-
-    for i,ghost in enumerate(ghostStates):
-        pass
 
     return score
 
